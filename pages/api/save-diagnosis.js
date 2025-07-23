@@ -1,3 +1,5 @@
+console.log("✅ API呼び出し検知: " + req.method);
+
 import { google } from "googleapis";
 
 export default async function handler(req, res) {
