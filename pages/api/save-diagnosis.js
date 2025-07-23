@@ -1,12 +1,15 @@
 import { google } from "googleapis";
 
 export default async function handler(req, res) {
+  console.log("✅ APIコードが呼ばれた (GET/POST対応)");
+
+  // GET と POST を許可
   if (req.method !== "POST" && req.method !== "GET") {
+    console.log("❌ Method Not Allowed: " + req.method);
     return res.status(405).json({ error: "Method Not Allowed" });
   }
 
   try {
-    // POSTならreq.body、GETならreq.queryから取得
     const data = req.method === "POST" ? req.body : req.query;
 
     const {
