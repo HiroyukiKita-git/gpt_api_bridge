@@ -1,11 +1,14 @@
 import { google } from "googleapis";
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
+  if (req.method !== "POST" && req.method !== "GET") {
     return res.status(405).json({ error: "Method Not Allowed" });
   }
 
   try {
+    // POSTならreq.body、GETならreq.queryから取得
+    const data = req.method === "POST" ? req.body : req.query;
+
     const {
       company_name,
       ad_copy,
@@ -14,9 +17,9 @@ export default async function handler(req, res) {
       risk_level,
       improvement_suggestions,
       source_url,
-    } = req.body;
+    } = data;
 
-    console.log("📝 受信データ:", req.body);
+    console.log("📝 受信データ:", data);
 
     const auth = new google.auth.GoogleAuth({
       credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON),
@@ -26,7 +29,7 @@ export default async function handler(req, res) {
     const sheets = google.sheets({ version: "v4", auth });
     const spreadsheetId = process.env.SHEET_ID;
 
-    const result = await sheets.spreadsheets.values.append({
+    await sheets.spreadsheets.values.append({
       spreadsheetId,
       range: "Sheet1!A1",
       valueInputOption: "USER_ENTERED",
@@ -44,8 +47,7 @@ export default async function handler(req, res) {
       },
     });
 
-    console.log("✅ 書き込み成功:", result.data);
-
+    console.log("✅ 書き込み成功");
     res.status(200).json({ status: "success" });
   } catch (error) {
     console.error("❌ 書き込みエラー:", error);
