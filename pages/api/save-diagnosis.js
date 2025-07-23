@@ -1,11 +1,8 @@
-console.log("✅ API呼び出し検知: " + req.method);
-
 import { google } from "googleapis";
 
 export default async function handler(req, res) {
-  console.log("✅ APIコードが呼ばれた (GET/POST対応)");
+  console.log("✅ API呼び出し検知: " + req.method);
 
-  // GET と POST を許可
   if (req.method !== "POST" && req.method !== "GET") {
     console.log("❌ Method Not Allowed: " + req.method);
     return res.status(405).json({ error: "Method Not Allowed" });
@@ -13,6 +10,8 @@ export default async function handler(req, res) {
 
   try {
     const data = req.method === "POST" ? req.body : req.query;
+
+    console.log("📝 受信データ:", JSON.stringify(data, null, 2));
 
     const {
       company_name,
@@ -24,7 +23,10 @@ export default async function handler(req, res) {
       source_url,
     } = data;
 
-    console.log("📝 受信データ:", data);
+    if (!company_name || !ad_copy) {
+      console.log("❌ 必須パラメータが不足");
+      return res.status(400).json({ error: "Missing required parameters" });
+    }
 
     const auth = new google.auth.GoogleAuth({
       credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON),
