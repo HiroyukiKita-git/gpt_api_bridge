@@ -10,8 +10,15 @@ if (process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
   credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
 } else {
   // ✅ ローカル開発ではcredentials.jsonファイルを読み込む
-  const credentialsPath = './credentials.json';
-  credentials = JSON.parse(fs.readFileSync(path.resolve(credentialsPath), 'utf8'));
+const credentialsPath = path.resolve('./credentials.json');
+
+let credentials;
+try {
+  const raw = fs.readFileSync(credentialsPath, 'utf8');
+  credentials = JSON.parse(raw);
+} catch (err) {
+  console.error("❌ credentials.json の読み込みに失敗しました:", err);
+  throw new Error("Google認証情報の読み込みに失敗しました。");
 }
 
 // Google Sheets API認証
