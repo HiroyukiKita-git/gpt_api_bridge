@@ -37,7 +37,7 @@ const credentialsPath = process.env.GOOGLE_SERVICE_ACCOUNT_JSON_PATH || './crede
 const credentials = JSON.parse(fs.readFileSync(path.resolve(credentialsPath), 'utf8'));
 
 const auth = new google.auth.GoogleAuth({
-  credentials,
+  keyFile: "credentials.json",
   scopes: ["https://www.googleapis.com/auth/spreadsheets"],
 });
 
