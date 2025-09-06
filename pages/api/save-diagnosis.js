@@ -1,6 +1,6 @@
-const fs = require('fs');
-const path = require('path');
-const { google } = require('googleapis');
+const fs = require("fs");
+const path = require("path");
+const { google } = require("googleapis");
 
 export default async function handler(req, res) {
   console.log("✅ API呼び出し検知: " + req.method);
@@ -27,23 +27,21 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Missing required parameters" });
     }
 
-    const credentialsPath = process.env.GOOGLE_SERVICE_ACCOUNT_JSON_PATH;
-    const credentials = JSON.parse(fs.readFileSync(path.resolve(credentialsPath), 'utf8'));
+    // credentials.json をルートから読み込む
+    const credentialsPath = path.join(process.cwd(), "credentials.json");
+    const credentials = JSON.parse(fs.readFileSync(credentialsPath, "utf8"));
 
-    import fs from 'fs';
-import path from 'path';
-
-const credentialsPath = process.env.GOOGLE_SERVICE_ACCOUNT_JSON_PATH || './credentials.json';
-const credentials = JSON.parse(fs.readFileSync(path.resolve(credentialsPath), 'utf8'));
-
-const auth = new google.auth.GoogleAuth({
-  keyFile: "credentials.json",
-  scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-});
-
+    const auth = new google.auth.GoogleAuth({
+      credentials: credentials,
+      scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+    });
 
     const sheets = google.sheets({ version: "v4", auth });
+
     const spreadsheetId = process.env.SHEET_ID;
+    if (!spreadsheetId) {
+      throw new Error("SHEET_ID is not defined in environment variables");
+    }
 
     await sheets.spreadsheets.values.append({
       spreadsheetId,
@@ -54,11 +52,11 @@ const auth = new google.auth.GoogleAuth({
           new Date().toISOString(),
           company_name,
           ad_copy,
-          eu_score,
-          jp_score,
-          risk_level,
-          improvement_suggestions,
-          source_url
+          eu_score || "",
+          jp_score || "",
+          risk_level || "",
+          improvement_suggestions || "",
+          source_url || ""
         ]],
       },
     });
