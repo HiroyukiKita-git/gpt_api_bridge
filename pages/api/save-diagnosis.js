@@ -1,18 +1,16 @@
-import { google } from "googleapis";
-import fs from "fs";
-import path from "path";
+const fs = require('fs');
+const path = require('path');
+const { google } = require('googleapis');
 
 export default async function handler(req, res) {
   console.log("✅ API呼び出し検知: " + req.method);
 
   if (req.method !== "POST" && req.method !== "GET") {
-    console.log("❌ Method Not Allowed: " + req.method);
     return res.status(405).json({ error: "Method Not Allowed" });
   }
 
   try {
     const data = req.method === "POST" ? req.body : req.query;
-
     console.log("📝 受信データ:", JSON.stringify(data, null, 2));
 
     const {
@@ -26,18 +24,14 @@ export default async function handler(req, res) {
     } = data;
 
     if (!company_name || !ad_copy) {
-      console.log("❌ 必須パラメータが不足");
       return res.status(400).json({ error: "Missing required parameters" });
     }
 
-    // 🔸 JSONファイルから読み込む
-    const credentialsPath = process.env.GOOGLE_SERVICE_ACCOUNT_JSON_PATH || "";
-    const credentialsJson = JSON.parse(
-      fs.readFileSync(path.resolve(credentialsPath), "utf8")
-    );
+    const credentialsPath = process.env.GOOGLE_SERVICE_ACCOUNT_JSON_PATH;
+    const credentials = JSON.parse(fs.readFileSync(path.resolve(credentialsPath), 'utf8'));
 
     const auth = new google.auth.GoogleAuth({
-      credentials: credentialsJson,
+      credentials,
       scopes: ["https://www.googleapis.com/auth/spreadsheets"],
     });
 
