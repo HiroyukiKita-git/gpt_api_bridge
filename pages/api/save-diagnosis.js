@@ -1,4 +1,6 @@
 import { google } from "googleapis";
+import fs from "fs";
+import path from "path";
 
 export default async function handler(req, res) {
   console.log("✅ API呼び出し検知: " + req.method);
@@ -28,8 +30,14 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Missing required parameters" });
     }
 
+    // 🔸 JSONファイルから読み込む
+    const credentialsPath = process.env.GOOGLE_SERVICE_ACCOUNT_JSON_PATH || "";
+    const credentialsJson = JSON.parse(
+      fs.readFileSync(path.resolve(credentialsPath), "utf8")
+    );
+
     const auth = new google.auth.GoogleAuth({
-      credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON),
+      credentials: credentialsJson,
       scopes: ["https://www.googleapis.com/auth/spreadsheets"],
     });
 
