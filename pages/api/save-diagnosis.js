@@ -30,10 +30,17 @@ export default async function handler(req, res) {
     const credentialsPath = process.env.GOOGLE_SERVICE_ACCOUNT_JSON_PATH;
     const credentials = JSON.parse(fs.readFileSync(path.resolve(credentialsPath), 'utf8'));
 
-    const auth = new google.auth.GoogleAuth({
-      credentials,
-      scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-    });
+    import fs from 'fs';
+import path from 'path';
+
+const credentialsPath = process.env.GOOGLE_SERVICE_ACCOUNT_JSON_PATH || './credentials.json';
+const credentials = JSON.parse(fs.readFileSync(path.resolve(credentialsPath), 'utf8'));
+
+const auth = new google.auth.GoogleAuth({
+  credentials,
+  scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+});
+
 
     const sheets = google.sheets({ version: "v4", auth });
     const spreadsheetId = process.env.SHEET_ID;
