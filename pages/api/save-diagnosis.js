@@ -2,20 +2,16 @@ import fs from 'fs';
 import path from 'path';
 import { google } from 'googleapis';
 
-// ✅ credentials.json の読み込み（ルートにあるファイルを読む）
 const credentialsPath = './credentials.json';
 const credentials = JSON.parse(fs.readFileSync(path.resolve(credentialsPath), 'utf8'));
 
-// ✅ Google認証設定
 const auth = new google.auth.GoogleAuth({
   credentials,
   scopes: ["https://www.googleapis.com/auth/spreadsheets"],
 });
 
-// ✅ Google Sheets クライアント生成
 const sheets = google.sheets({ version: "v4", auth });
 
-// ✅ APIハンドラ関数
 export default async function handler(req, res) {
   console.log("✅ API呼び出し検知: " + req.method);
 
@@ -41,7 +37,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Missing required parameters" });
     }
 
-    const spreadsheetId = process.env.SHEET_ID; // ← これは.env.localに記載しておいてください
+    const spreadsheetId = process.env.SHEET_ID;
 
     await sheets.spreadsheets.values.append({
       spreadsheetId,
